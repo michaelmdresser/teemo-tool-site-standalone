@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Teemo Tool</title>
+    <link rel="stylesheet" href="style.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Lato&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed&display=swap" rel="stylesheet">
+  </head>
+  <body>
+
+    <h1 id="title">Teemo Tool</h1>
+    <h5 id="about"><a href="https://github.com/michaelmdresser/teemo-tool/blob/master/README.md">About</a></h5>
+    <div id="show-breakdown">
+    	<button id="show-breakdown-button">Show bet breakdown</button>
+    </div>
+    <div id="bet-info">
+        <span id="blue-bet-info">
+            <span id="blue-total-container" class="bet-container">
+              <span id="blue-bet-total" data-total="0" class="bet-total"></span>
+              <span id="blue-bet-label" class="label">Mushrooms</span>
+            </span>
+            <div id="blue-individual-container" class="individual-container">
+              <div id="blue-breakdown-counter" class="breakdown-counter"  style="display: none">0</div>
+              <div id="blue-individual-bets" data-total="0" class="individual-bets" style="display: none">
+              </div>
+            </div>
+        </span>
+        <span id="versus">VS</span>
+        <span id="red-bet-info">
+            <span id="red-total-container" class="bet-container">
+              <span id="red-bet-total" data-total="0" class="bet-total"></span>
+              <span id="red-bet-label" class="label">Mushrooms</span>
+            </span>
+            <div id="red-individual-container" class="individual-container">
+              <div id="red-breakdown-counter" class="breakdown-counter"  style="display: none">0</div>
+              <div id="red-individual-bets" data-total="0" class="individual-bets" style="display: none">
+              </div>
+            </div>
+        </span>
+    </div>
+
+    <script src="teemo.js" type=module></script>
+  </body>
+</html>

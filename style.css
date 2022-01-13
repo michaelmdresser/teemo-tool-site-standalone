@@ -1,0 +1,143 @@
+#title {
+    text-align: center;
+    padding: 10px;
+    font-family: 'Lato', sans-serif;
+}
+
+#about {
+    text-align: center;
+    font-family: 'Lato', sans-serif;
+}
+
+.bet-total {
+    padding: 2px;
+    display: inline-block;
+}
+
+.individual-container {
+    position: absolute;
+}
+
+.individual-bets {
+    margin-top: 5px;
+    font-size: 0.95em;
+    font-family: 'Roboto Condensed', sans-serif;
+}
+
+.label {
+    /* border:1px solid black; */
+    font-family: 'Lato', sans-serif;
+    padding: 3px;
+    display: inline-block;
+}
+
+.breakdown-counter {
+    position: relative;
+    font-family: 'Lato', sans-serif;
+    font-size: 1.5em;
+}
+
+.bet-container {
+    padding: 9px;
+    position:absolute;
+    top: 30%;
+    margin-bottom: 10px;
+    display: table-cell;
+}
+
+#blue-total-container {
+    left: 30%;
+}
+
+#blue-bet-total {
+    background: transparent;
+    border-radius: 18px;
+    position: relative;
+    margin-bottom: 1px;
+    font-family: 'Lato', sans-serif;
+    font-size: 2.0em;
+    float:right;
+    color: white;
+    /*box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);*/
+}
+
+#blue-bet-label {
+    float: right;
+}
+
+#blue-individual-container {
+    position: absolute;
+    left: 20%;
+}
+
+
+#blue-individual-bets {
+    position: relative;
+    float: left;
+}
+
+#red-total-container {
+    right: 30%;
+}
+
+#red-bet-total {
+  background: transparent;
+  border-radius: 18px;
+  position: relative;
+  margin-bottom: 1px;
+  font-family: 'Lato', sans-serif;
+  font-size: 2.0em;
+  color: white;
+    /*box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);*/
+}
+
+#red-bet-label {
+    float: left
+}
+
+#red-individual-container {
+    position: absolute;
+    right: 20%;
+}
+
+#red-individual-bets {
+    position: relative;
+}
+
+body {
+    height: 100%;
+    background: linear-gradient(90deg, #0074D9 25%, #FF4136 75%);
+    color: white;
+    font-size: 1.2em;
+}
+
+#bet-info {
+    display: flex;
+    justify-content: space-evenly;
+    color: white;
+    text-align: right;
+}
+
+#show-breakdown {
+    padding-bottom: 5px;
+    text-align: center;
+}
+
+#show-breakdown-button {
+    background: rgba(0, 0, 0, 0.25);
+    border: none;
+    border-radius: 10px;
+    padding: 8px;
+    color: white;
+    font-family: 'Lato', sans-serif;
+    box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+    cursor: pointer;
+}
+
+#versus {
+    text-align: center;
+    position: absolute;
+    top: 31.2%;
+    font-family: 'Lato', sans-serif;
+    font-size: 2.0em;
+}
