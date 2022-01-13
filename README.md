@@ -1,6 +1,8 @@
-# teemo-tool-site
+# teemo-tool-site-standalone
 
-This is the website for the [Teemo Tool](https://github.com/michaelmdresser/teemo-tool) project. Uses data from the [API Server](https://github.com/michaelmdresser/teemo-tool-api).
+This is a fully local (no backend) version of the
+[Teemo Tool](https://github.com/michaelmdresser/teemo-tool) project's
+[web frontend](https://github.com/michaelmdresser/teemo-tool-site).
 
 ## Developing
 
@@ -9,5 +11,3 @@ The `teemo.js` file is an artifact of the Typescript built but is included in th
 `tsc -b` to compile the `teemo.ts` file to `teemo.js` with correct options.
 
 If running the site locally, serve it from a local HTTP server to avoid CORS issues that crop up when accessing local files like the dependencies in the `js` folder. A simple way of doing this is with Python's SimpleHTTPServer. In the root directory of this project, run `python -m SimpleHTTPServer 8000` and then navigate to `localhost:8000` in your browser.
-
-If you want to view updated frontend behavior without waiting for a new Salty Teemo match to start, check out the test endpoints exposed by the [API Server](https://github.com/michaelmdresser/teemo-tool-api).
