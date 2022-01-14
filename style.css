@@ -134,6 +134,22 @@ body {
     cursor: pointer;
 }
 
+#reset-bets {
+    padding-bottom: 5px;
+    text-align: center;
+}
+
+#reset-bets-button {
+    background: rgba(0, 0, 0, 0.25);
+    border: none;
+    border-radius: 10px;
+    padding: 8px;
+    color: white;
+    font-family: 'Lato', sans-serif;
+    box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+    cursor: pointer;
+}
+
 #versus {
     text-align: center;
     position: absolute;
