@@ -39,7 +39,8 @@ while (true) {
     failure = true;
   })
 
-  if (!failure) {
+  if (failure === false) {
+    console.log("Breaking for success")
     break;
   }
 
