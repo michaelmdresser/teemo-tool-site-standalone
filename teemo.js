@@ -2,55 +2,21 @@ import { CountUp } from './js/countUp.min.js';
 
 var totalDisplayMode = true;
 
-let twitchUsername = window.localStorage.getItem('twitchUsername');
-let twitchToken = window.localStorage.getItem('twitchToken');
-
-function promptForBoth() {
-  twitchUsername = prompt("Enter your Twitch username");
-  // https://twitchapps.com/tmi/
-  twitchToken = prompt("Enter your Twitch OAuth token for chat. Visit https://twitchapps.com/tmi/ to generate one.");
-
-  window.localStorage.setItem('twitchUsername', twitchUsername);
-  window.localStorage.setItem('twitchToken', twitchToken);
-}
-
-if (twitchUsername == null || twitchToken == null) {
-  promptForBoth();
-}
-
 var tmiclient;
 
-while (true) {
-  tmiclient = new tmi.Client({
-    options: { debug: true, messageLogLevel: "info" },
-    connection: {
-      reconnect: true,
-      secure: true,
-    },
-    identity: {
-      username: twitchUsername,
-      password: twitchToken,
-    },
-    channels: ['saltyteemo']
-  });
+tmiclient = new tmi.Client({
+  options: { debug: true, messageLogLevel: "info" },
+  connection: {
+    reconnect: true,
+    secure: true,
+  },
+  channels: ['saltyteemo']
+});
 
-  let failure = false
-  try {
-    await tmiclient.connect()
-  } catch (e) {
-    console.log("Failed to connect:", e);
-    failure = true;
-  }
-  // tmiclient.connect().catch((e) => {
-  // })
+tmiclient.connect().catch((e) => {
+  console.log("Failed to connect:", e);
+})
 
-  if (failure === false) {
-    console.log("Breaking for success")
-    break;
-  }
-
-  promptForBoth();
-}
 
 var bluebets = [];
 var redbets = [];
