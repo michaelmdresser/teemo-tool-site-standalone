@@ -4,6 +4,8 @@ This is a fully local (no backend) version of the
 [Teemo Tool](https://github.com/michaelmdresser/teemo-tool) project's
 [web frontend](https://github.com/michaelmdresser/teemo-tool-site).
 
+It watches Twitch chat by using Twitch's IRC interface and [tmi.js](https://github.com/tmijs/tmi.js).
+
 ## Developing
 
 See the `document.test` function for simulating messages coming in.
