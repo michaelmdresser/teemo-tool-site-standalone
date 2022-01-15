@@ -23,16 +23,16 @@ var redbets = [];
 
 let redre = /!red (\d+)/;
 let bluere = /!blue (\d+)/;
+let atre = /@(\S+)/;
 
 // descending
 function sorterFunc(a, b) {
   return b - a
 }
 
-// TODO: The current xxsaltbotxx behavior just does "@username -- bet accepted"
-// without team or amount info. This implementation relies on users not
-// attempting to bet outside of the window. Future behavior should make sure
-// that a user's bet was accepted.
+// Username -> {"team": "blue", amount: 1000}
+var attemptedbets = {}
+
 export function onIRCMessage(channel, tags, message, self) {
   if (self) return; // shouldn't happen, we won't be sending
 
@@ -42,19 +42,46 @@ export function onIRCMessage(channel, tags, message, self) {
 
   if (tags["username"] === "xxsaltbotxx") {
     // Eventually this branch can be used for confirming bets
+
+    if (message.includes("accepted")) {
+      let atmatch = atre.exec(message);
+      if (atmatch === null) {
+        return;
+      }
+
+      let acceptedUsername = atmatch[1];
+
+      if (!(acceptedUsername in attemptedbets)) {
+        return;
+      }
+
+      let attempted = attemptedbets[acceptedUsername];
+      if (attempted["team"] === "blue") {
+        bluebets.push(attempted["amount"]);
+        bluebets.sort(sorterFunc);
+        updateBetInfo("blue");
+      } else if (attempted["team"] === "red") {
+        redbets.push(attempted["amount"]);
+        redbets.sort(sorterFunc);
+        updateBetInfo("red");
+      }
+    }
+
     return;
   }
   let redmatch = redre.exec(message);
   let bluematch = bluere.exec(message);
 
   if (redmatch !== null) {
-    redbets.push(parseInt(redmatch[1]));
-    redbets.sort(sorterFunc);
-    updateBetInfo("red");
+    attemptedbets[tags["username"]] = {
+      "team": "red",
+      "amount": parseInt(redmatch[1]),
+    };
   } else if (bluematch !== null) {
-    bluebets.push(parseInt(bluematch[1]));
-    bluebets.sort(sorterFunc);
-    updateBetInfo("blue");
+    attemptedbets[tags["username"]] = {
+      "team": "blue",
+      "amount": parseInt(bluematch[1]),
+    };
   }
 }
 
