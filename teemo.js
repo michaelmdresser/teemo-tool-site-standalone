@@ -63,6 +63,10 @@ function sorterFunc(a, b) {
   return b - a
 }
 
+// TODO: The current xxsaltbotxx behavior just does "@username -- bet accepted"
+// without team or amount info. This implementation relies on users not
+// attempting to bet outside of the window. Future behavior should make sure
+// that a user's bet was accepted.
 export function onIRCMessage(channel, tags, message, self) {
   if (self) return; // shouldn't happen, we won't be sending
 
