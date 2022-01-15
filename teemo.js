@@ -37,11 +37,16 @@ var attemptedbets = {}
 export function onIRCMessage(channel, tags, message, self) {
   if (self) return; // shouldn't happen, we won't be sending
 
+  // The tags include a lowercased username but the message might contain an
+  // @Username that has mixed case. Force lowercasing to avoid problems.
+  let username = tags["username"].toLowerCase();
+  message = message.toLowerCase();
+
   // Help messages from moobot sometimes include !blue or !red commands as
   // examples
-  if (tags["username"] === "moobot") return;
+  if (username === "moobot") return;
 
-  if (tags["username"] === "xxsaltbotxx") {
+  if (username === "xxsaltbotxx") {
     // Eventually this branch can be used for confirming bets
 
     if (message.includes("accepted")) {
@@ -74,12 +79,12 @@ export function onIRCMessage(channel, tags, message, self) {
   let bluematch = bluere.exec(message);
 
   if (redmatch !== null) {
-    attemptedbets[tags["username"]] = {
+    attemptedbets[username] = {
       "team": "red",
       "amount": parseInt(redmatch[1]),
     };
   } else if (bluematch !== null) {
-    attemptedbets[tags["username"]] = {
+    attemptedbets[username] = {
       "team": "blue",
       "amount": parseInt(bluematch[1]),
     };
