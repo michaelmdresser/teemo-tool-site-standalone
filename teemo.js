@@ -10,6 +10,7 @@ tmiclient = new tmi.Client({
     reconnect: true,
     secure: true,
   },
+  skipMembership: true,
   channels: ['saltyteemo']
 });
 
