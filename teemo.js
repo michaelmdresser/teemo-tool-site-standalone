@@ -70,6 +70,14 @@ function sorterFunc(a, b) {
 export function onIRCMessage(channel, tags, message, self) {
   if (self) return; // shouldn't happen, we won't be sending
 
+  // Help messages from moobot sometimes include !blue or !red commands as
+  // examples
+  if (tags["username"] === "moobot") return;
+
+  if (tags["username"] === "xxsaltbotxx") {
+    // Eventually this branch can be used for confirming bets
+    return;
+  }
   let redmatch = redre.exec(message);
   let bluematch = bluere.exec(message);
 
