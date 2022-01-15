@@ -261,3 +261,49 @@ document.getElementById("reset-bets-button").addEventListener('click', function(
   updateBetInfo("red");
   updateBetInfo("blue");
 });
+
+
+// Test data from real chat log 2022-01-14
+const testmessages = [
+"Gamingerbtastic: !blue 200",
+"xxsaltbotxx: @erbtastic - Bet accepted for 200.",
+"Gamingkrispkratos: !blue 8000",
+"xxsaltbotxx: @krispkratos - Bet accepted for 8,000.",
+"GamingBongat_: !red 5000",
+"xxsaltbotxx: @Bongat_ - You do not have enough. You're current balance is 3148. If you are new, type !register to get your starting balance.",
+"GamingEbelisk: !blue 2000",
+"xxsaltbotxx: @Ebelisk - Bet accepted for 2,000.",
+"GamingBongat_: !balance",
+"xxsaltbotxx: @Bongat_ - You have 3 148 mashrooms.",
+"andrewch783: !blue 7777",
+"xxsaltbotxx: @andrewch783 - Bet accepted for 7,777.",
+"GamingBongat_: !red 3148",
+"VoyboyisMyWife: !blue 1000",
+"xxsaltbotxx: @Bongat_ - Bet accepted for 3,148.",
+"xxsaltbotxx: @VoyboyisMyWife - Bet accepted for 1,000.",
+"GamingSleepyG807: !blue 10000",
+"xxsaltbotxx: @SleepyG807 - Bet accepted for 10,000.",
+"duckycheese: !red 4000",
+"xxsaltbotxx: @duckycheese - Bet accepted for 4,000.",
+"calzoking: !blue 10000",
+"xxsaltbotxx: @calzoking - Bet accepted for 10,000.",
+"SpaceFootballKing: !blue 5000",
+"xxsaltbotxx: @SpaceFootballKing - It had over for this game. Maybe next time.....yes...",
+"bongatde: !red 10000",
+"xxsaltbotxx: @bongatde - It had over for this game. Maybe next time.....yes...",
+"Skaigerah: !farm",
+];
+
+document.sendSampleInput = () => {
+  const parsed = testmessages.map(raw => {
+    let sp = raw.split(":");
+    return {
+      "username": sp[0],
+      "message": sp[1]
+    }
+  })
+
+  parsed.forEach(obj => {
+    onIRCMessage("saltyteemo", {"username": obj["username"]}, obj["message"], null)
+  })
+}
