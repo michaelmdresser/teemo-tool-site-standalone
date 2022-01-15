@@ -238,24 +238,32 @@ document.getElementById("reset-bets-button").addEventListener('click', function(
 
 
 // Test data from real chat log 2022-01-14
+//
+// If processed improperly (including unaccepted bets):
+// Blue: 43977
+// Red: 22148
+//
+// If processed correctly:
+// Blue: 38977
+// Red: 7148
 const testmessages = [
-"Gamingerbtastic: !blue 200",
+"erbtastic: !blue 200",
 "xxsaltbotxx: @erbtastic - Bet accepted for 200.",
-"Gamingkrispkratos: !blue 8000",
+"krispkratos: !blue 8000",
 "xxsaltbotxx: @krispkratos - Bet accepted for 8,000.",
-"GamingBongat_: !red 5000",
+"Bongat_: !red 5000",
 "xxsaltbotxx: @Bongat_ - You do not have enough. You're current balance is 3148. If you are new, type !register to get your starting balance.",
-"GamingEbelisk: !blue 2000",
+"Ebelisk: !blue 2000",
 "xxsaltbotxx: @Ebelisk - Bet accepted for 2,000.",
-"GamingBongat_: !balance",
+"Bongat_: !balance",
 "xxsaltbotxx: @Bongat_ - You have 3 148 mashrooms.",
 "andrewch783: !blue 7777",
 "xxsaltbotxx: @andrewch783 - Bet accepted for 7,777.",
-"GamingBongat_: !red 3148",
+"Bongat_: !red 3148",
 "VoyboyisMyWife: !blue 1000",
 "xxsaltbotxx: @Bongat_ - Bet accepted for 3,148.",
 "xxsaltbotxx: @VoyboyisMyWife - Bet accepted for 1,000.",
-"GamingSleepyG807: !blue 10000",
+"SleepyG807: !blue 10000",
 "xxsaltbotxx: @SleepyG807 - Bet accepted for 10,000.",
 "duckycheese: !red 4000",
 "xxsaltbotxx: @duckycheese - Bet accepted for 4,000.",
