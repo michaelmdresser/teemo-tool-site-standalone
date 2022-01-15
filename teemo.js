@@ -6,8 +6,9 @@ let twitchUsername = window.localStorage.getItem('twitchUsername');
 let twitchToken = window.localStorage.getItem('twitchToken');
 
 function promptForBoth() {
-  let twitchUsername = prompt("Enter your twitch username");
-  let twitchToken = prompt("Enter your twitch OAuth token for chat");
+  twitchUsername = prompt("Enter your Twitch username");
+  // https://twitchapps.com/tmi/
+  twitchToken = prompt("Enter your Twitch OAuth token for chat. Visit https://twitchapps.com/tmi/ to generate one.");
 
   window.localStorage.setItem('twitchUsername', twitchUsername);
   window.localStorage.setItem('twitchToken', twitchToken);
@@ -34,10 +35,14 @@ while (true) {
   });
 
   let failure = false
-  tmiclient.connect().catch((e) => {
+  try {
+    await tmiclient.connect()
+  } catch (e) {
     console.log("Failed to connect:", e);
     failure = true;
-  })
+  }
+  // tmiclient.connect().catch((e) => {
+  // })
 
   if (failure === false) {
     console.log("Breaking for success")
