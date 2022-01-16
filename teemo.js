@@ -117,7 +117,10 @@ export function onIRCMessage(channel, tags, message, self) {
 // Use with browser console `document.test("!blue 100")`
 //
 // Attaching to document makes this accessible. I'm sure there is a better way.
-document.test = (message) => onIRCMessage(null, null, message, false);
+document.test = (message) => {
+  onIRCMessage(null, {"username": "tester"}, message, false);
+  onIRCMessage(null, {"username": "xxsaltbotxx"}, "@tester - ... accepted ...", false);
+}
 
 tmiclient.on('message', onIRCMessage);
 
