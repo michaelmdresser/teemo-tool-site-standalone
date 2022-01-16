@@ -2,6 +2,9 @@ import { CountUp } from './js/countUp.min.js';
 
 var totalDisplayMode = true;
 
+let alertaudio = new Audio('elegantdoor.mp3');
+let bettingactive = false;
+
 var tmiclient;
 
 tmiclient = new tmi.Client({
@@ -70,6 +73,23 @@ export function onIRCMessage(channel, tags, message, self) {
         redbets.push(attempted["amount"]);
         redbets.sort(sorterFunc);
         updateBetInfo("red");
+      }
+
+      // When we get the first bet of a betting round, alert the user and start
+      // a delayed function that will clear the bets in the UI once the round
+      // is over.
+      if (!bettingactive) {
+        bettingactive = true;
+        alertaudio.play();
+        setTimeout(() => {
+          console.log("resetting bets");
+          bettingactive = false;
+          bluebets = [];
+          redbets = [];
+
+          updateBetInfo("blue");
+          updateBetInfo("red");
+        }, 1000 * 60 * 4);
       }
     }
 
