@@ -171,7 +171,7 @@ function TeamBetsContainer() {
   return {
     view: function(vnode) {
       let team = vnode.attrs.team;
-      let bets = vnode.attrs.bets;
+      let bets = vnode.attrs.bets.sort((a, b) => b - a);
 
       return m("div",
         { id: `${team}-individual-container`, class: 'individual-container' },
