@@ -241,19 +241,6 @@ document.test = (message) => {
 
 tmiclient.on('message', onIRCMessage);
 
-function makeIndividualBetsDiv(bets) {
-  let div = document.createElement("div")
-
-  bets.map(amount => {
-    let child = document.createElement("div")
-    child.innerText = String(amount)
-    div.appendChild(child)
-  })
-
-  return div
-}
-
-
 document.getElementById("reset-bets-button").addEventListener('click', function() {
   attemptedbets = {};
   acceptedbetusernames = {};
