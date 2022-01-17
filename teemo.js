@@ -21,10 +21,6 @@ tmiclient.connect().catch((e) => {
   console.log("Failed to connect:", e);
 })
 
-
-var bluebets = [];
-var redbets = [];
-
 let redre = /!red (\d+)/;
 let bluere = /!blue (\d+)/;
 let atre = /@(\S+)/;
@@ -35,9 +31,11 @@ function sorterFunc(a, b) {
 }
 
 // Username -> {"team": "blue", amount: 1000}
-var attemptedbets = {}
+var attemptedbets = {};
+// Username -> true if bet accepted
+var acceptedbetusernames = {};
 
-export function onIRCMessage(channel, tags, message, self) {
+function onIRCMessage(channel, tags, message, self) {
   if (self) return; // shouldn't happen, we won't be sending
 
   // The tags include a lowercased username but the message might contain an
@@ -58,22 +56,11 @@ export function onIRCMessage(channel, tags, message, self) {
         return;
       }
 
-      let acceptedUsername = atmatch[1];
-
-      if (!(acceptedUsername in attemptedbets)) {
-        return;
-      }
-
-
       // When we get the first bet of a betting round, alert the user, reset the
       // bet data, and start a delayed function that will mark the betting round
       // as over.
       if (!bettingactive) {
         bettingactive = true;
-        bluebets = [];
-        redbets = [];
-        updateBetInfo("blue");
-        updateBetInfo("red");
 
         try {
           alertaudio.play();
@@ -84,25 +71,28 @@ export function onIRCMessage(channel, tags, message, self) {
         setTimeout(() => {
           console.log("betting is over, flipping flag");
           bettingactive = false;
+
+          // Reset the data holders but don't call update. Will be updated when
+          // an actual bet message is received.
+          attemptedbets = {};
+          acceptedbetusernames = {};
         }, 1000 * 60 * 4);
       }
 
+      let acceptedUsername = atmatch[1];
 
-      let attempted = attemptedbets[acceptedUsername];
-      if (attempted["team"] === "blue") {
-        bluebets.push(attempted["amount"]);
-        bluebets.sort(sorterFunc);
-        updateBetInfo("blue");
-      } else if (attempted["team"] === "red") {
-        redbets.push(attempted["amount"]);
-        redbets.sort(sorterFunc);
-        updateBetInfo("red");
-      }
-
+      acceptedbetusernames[acceptedUsername] = true;
+      updateBetInfo("blue");
+      updateBetInfo("red");
+      return;
     }
 
     return;
   }
+
+  // console.log(tags)
+  // console.log(message)
+
   let redmatch = redre.exec(message);
   let bluematch = bluere.exec(message);
 
@@ -111,11 +101,15 @@ export function onIRCMessage(channel, tags, message, self) {
       "team": "red",
       "amount": parseInt(redmatch[1]),
     };
+    updateBetInfo("red");
+    return;
   } else if (bluematch !== null) {
     attemptedbets[username] = {
       "team": "blue",
       "amount": parseInt(bluematch[1]),
     };
+    updateBetInfo("blue");
+    return;
   }
 }
 
@@ -144,16 +138,25 @@ function makeIndividualBetsDiv(bets) {
   return div
 }
 
-function updateBetInfo(team, bets) {
-  var bets;
-  if (team === "blue") {
-    bets = bluebets;
-  } else if (team === "red") {
-    bets = redbets;
-  } else {
+function updateBetInfo(team) {
+  if (team !== "blue" && team !== "red") {
     console.log("Unknown team:", team);
     return;
   }
+
+  let bets = [];
+  for (const [username, betinfo] of Object.entries(attemptedbets)) {
+    if (betinfo["team"] !== team) {
+      continue;
+    }
+
+    if (acceptedbetusernames[username] !== true) {
+      continue;
+    }
+
+    bets.push(betinfo["amount"]);
+  }
+
   var divName = team + "-bet-total";
   var totalDiv = document.getElementById(divName);
   var individualDivName = team + "-individual-bets";
