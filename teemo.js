@@ -30,12 +30,19 @@ var TeamBetCount = {
     let team = vnode.attrs.team;
     let bets = vnode.attrs.bets;
 
+    let totalHS = m("span", { class: 'bet-total' }, bets.length)
+    let textHS = m("span", { id: `${team}-bet-label`, class: 'label' }, `Bets for ${team}`)
+
+    let childArr = [];
+    if (team === "red") {
+      childArr = [totalHS, textHS]
+    } else {
+      childArr = [textHS, totalHS]
+    }
+
     return m("span",
       { id: `${team}-total-container`, class: 'bet-container' },
-      [
-        m("span", { class: 'bet-total' }, bets.length),
-        m("span", { id: `${team}-bet-label`, class: 'label' }, `Bets for ${team}`),
-      ])
+      childArr)
   }
 }
 
@@ -114,7 +121,6 @@ var AllBetInfo = {
   view: function(vnode) {
     return m("div", [
       m(TeamBetInfo, { team: 'blue' }),
-      m("span", { id: "versus" }, 'VS'),
       m(TeamBetInfo, { team: 'red' }),
     ])
   }
