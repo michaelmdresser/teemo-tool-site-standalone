@@ -12,7 +12,6 @@ body {
     padding-bottom: 5px;
 }
 
-
 .bet-total {
     background: transparent;
     border-radius: 18px;
@@ -33,9 +32,10 @@ body {
 .individual-bets {
     margin-top: 5px;
     font-size: 0.95em;
+    position: relative;
 }
 
-.label {
+.bet-label {
     /* border:1px solid black; */
     padding: 3px;
     display: inline-block;
@@ -46,50 +46,45 @@ body {
     font-size: 1.5em;
 }
 
-.bet-container {
+.total-container {
     padding: 9px;
-    position:absolute;
+    position: absolute;
     top: 30%;
     margin-bottom: 10px;
     display: table-cell;
 }
 
-#blue-total-container {
+.blue .total-container {
     left: 30%;
 }
 
-
-#blue-bet-label {
+.blue .bet-label {
     float: right;
 }
 
-#blue-individual-container {
-    position: absolute;
+.blue .individual-container {
     left: 20%;
 }
 
-
-#blue-individual-bets {
-    position: relative;
+.blue .individual-bets {
     float: left;
     text-align: left;
 }
 
-#red-total-container {
+.red .total-container {
     right: 30%;
 }
 
-#red-bet-label {
+.red .bet-label {
     float: left
 }
 
-#red-individual-container {
-    position: absolute;
+.red .individual-container {
     right: 20%;
 }
 
-#red-individual-bets {
-    position: relative;
+.red .individual-bets {
+    text-align: right;
 }
 
 body {
@@ -97,13 +92,6 @@ body {
     background: linear-gradient(90deg, #0074D9 25%, #FF4136 75%);
     color: white;
     font-size: 1.2em;
-}
-
-#bet-info {
-    display: flex;
-    justify-content: space-evenly;
-    color: white;
-    text-align: right;
 }
 
 #reset-bets {

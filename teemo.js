@@ -21,7 +21,7 @@ var TeamBetCount = {
     let bets = vnode.attrs.bets;
 
     let totalHS = m("span", { class: 'bet-total' }, bets.length)
-    let textHS = m("span", { id: `${team}-bet-label`, class: 'label' }, `Bets for ${team}`)
+    let textHS = m("span", { class: 'bet-label' }, `Bets for ${team}`)
 
     let childArr = [];
     if (team === "red") {
@@ -31,7 +31,7 @@ var TeamBetCount = {
     }
 
     return m("span",
-      { id: `${team}-total-container`, class: 'bet-container' },
+      { class: 'total-container' },
       childArr)
   }
 }
@@ -49,15 +49,14 @@ function TeamBetsContainer() {
       let bets = vnode.attrs.bets.sort((a, b) => b - a);
 
       return m("div",
-        { id: `${team}-individual-container`, class: 'individual-container' },
+        { class: 'individual-container' },
         [
           m("div",
-            { id: `${team}-breakdown-counter`, class: 'breakdown-counter' },
-            // TODO: this should be a CountUp
+            { class: 'breakdown-counter' },
             betSum
           ),
           m("div",
-            { id: `${team}-individual-bets`, class: 'individual-bets' },
+            { class: 'individual-bets' },
             bets.map(amount => m("div", amount))
           )
         ])
@@ -99,7 +98,7 @@ var TeamBetInfo = {
     }
 
 
-    return m("span", { id: `${team}-bet-info` }, [
+    return m("span", { class: `${team}` }, [
       m(TeamBetCount, { team: team, bets: bets }),
       m(TeamBetsContainer, { team: team, bets: bets }),
     ]
