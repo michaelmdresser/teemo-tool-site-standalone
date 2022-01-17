@@ -297,8 +297,8 @@ document.getElementById("show-breakdown-button").addEventListener('click', funct
 
 
 document.getElementById("reset-bets-button").addEventListener('click', function() {
-  bluebets = [];
-  redbets = [];
+  attemptedbets = {};
+  acceptedbetusernames = {};
   updateBetInfo("red");
   updateBetInfo("blue");
 });
