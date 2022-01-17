@@ -64,6 +64,30 @@ export function onIRCMessage(channel, tags, message, self) {
         return;
       }
 
+
+      // When we get the first bet of a betting round, alert the user, reset the
+      // bet data, and start a delayed function that will mark the betting round
+      // as over.
+      if (!bettingactive) {
+        bettingactive = true;
+        bluebets = [];
+        redbets = [];
+        updateBetInfo("blue");
+        updateBetInfo("red");
+
+        try {
+          alertaudio.play();
+        } catch (e) {
+          console.log("Failed to play alert: ", e);
+        }
+
+        setTimeout(() => {
+          console.log("betting is over, flipping flag");
+          bettingactive = false;
+        }, 1000 * 60 * 4);
+      }
+
+
       let attempted = attemptedbets[acceptedUsername];
       if (attempted["team"] === "blue") {
         bluebets.push(attempted["amount"]);
@@ -75,22 +99,6 @@ export function onIRCMessage(channel, tags, message, self) {
         updateBetInfo("red");
       }
 
-      // When we get the first bet of a betting round, alert the user and start
-      // a delayed function that will clear the bets in the UI once the round
-      // is over.
-      if (!bettingactive) {
-        bettingactive = true;
-        alertaudio.play();
-        setTimeout(() => {
-          console.log("resetting bets");
-          bettingactive = false;
-          bluebets = [];
-          redbets = [];
-
-          updateBetInfo("blue");
-          updateBetInfo("red");
-        }, 1000 * 60 * 4);
-      }
     }
 
     return;
