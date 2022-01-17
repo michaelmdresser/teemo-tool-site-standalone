@@ -1,6 +1,9 @@
 import { CountUp } from './js/countUp.min.js';
 
-var totalDisplayMode = true;
+////////////////////////////////////////////////////////////////////////////////
+// Global Data
+////////////////////////////////////////////////////////////////////////////////
+
 let alertaudio = new Audio('elegantdoor.mp3');
 var tmiclient;
 
@@ -9,6 +12,10 @@ let bettingactive = false;
 var attemptedbets = {};
 // Username -> [{"team": "blue", amount: 1000}]
 var acceptedbets = {};
+
+////////////////////////////////////////////////////////////////////////////////
+// Twitch chat message handling
+////////////////////////////////////////////////////////////////////////////////
 
 tmiclient = new tmi.Client({
   options: { debug: true, messageLogLevel: "info" },
@@ -23,6 +30,114 @@ tmiclient = new tmi.Client({
 tmiclient.connect().catch((e) => {
   console.log("Failed to connect:", e);
 })
+
+let redre = /!red (\d+)/;
+let bluere = /!blue (\d+)/;
+let atre = /@(\S+)/;
+
+function onIRCMessage(channel, tags, message, self) {
+  if (self) return; // shouldn't happen, we won't be sending
+
+  // The tags include a lowercased username but the message might contain an
+  // @Username that has mixed case. Force lowercasing to avoid problems.
+  let username = tags["username"].toLowerCase();
+  message = message.toLowerCase();
+
+  // Help messages from moobot sometimes include !blue or !red commands as
+  // examples
+  if (username === "moobot") return;
+
+  if (username === "xxsaltbotxx") {
+    // Eventually this branch can be used for confirming bets
+
+    if (message.includes("accepted")) {
+      let atmatch = atre.exec(message);
+      if (atmatch === null) {
+        return;
+      }
+
+      // When we get the first bet of a betting round, alert the user, reset the
+      // bet data, and start a delayed function that will mark the betting round
+      // as over.
+      if (!bettingactive) {
+        bettingactive = true;
+
+        try {
+          alertaudio.play();
+        } catch (e) {
+          console.log("Failed to play alert: ", e);
+        }
+
+        setTimeout(() => {
+          console.log("betting is over, flipping flag");
+          bettingactive = false;
+
+          // Reset the data holders but don't call update. Will be updated when
+          // an actual bet message is received.
+          attemptedbets = {};
+          acceptedbets = {};
+        }, 1000 * 60 * 4);
+      }
+
+      let acceptedUsername = atmatch[1];
+
+      if (!(acceptedUsername in attemptedbets)) {
+        console.log(`Expected username '${acceptedUsername}' to be in attempted bets, but it wasn't`);
+        return
+      }
+
+      if (!(acceptedUsername in acceptedbets)) {
+        acceptedbets[acceptedUsername] = [];
+      }
+
+      acceptedbets[acceptedUsername].push(attemptedbets[acceptedUsername])
+      delete attemptedbets[acceptedUsername]
+
+      m.redraw();
+      return;
+    }
+
+    return;
+  }
+
+  // console.log(tags)
+  // console.log(message)
+
+  let redmatch = redre.exec(message);
+  let bluematch = bluere.exec(message);
+
+  if (redmatch !== null) {
+    attemptedbets[username] = {
+      "team": "red",
+      "amount": parseInt(redmatch[1]),
+    };
+    m.redraw();
+    return;
+  } else if (bluematch !== null) {
+    attemptedbets[username] = {
+      "team": "blue",
+      "amount": parseInt(bluematch[1]),
+    };
+    m.redraw();
+    return;
+  }
+}
+
+tmiclient.on('message', onIRCMessage);
+
+////////////////////////////////////////////////////////////////////////////////
+// Button handlers
+////////////////////////////////////////////////////////////////////////////////
+
+document.getElementById("reset-bets-button").addEventListener('click', function() {
+  attemptedbets = {};
+  acceptedbetusernames = {};
+  m.redraw();
+});
+
+////////////////////////////////////////////////////////////////////////////////
+// Display/rendering components and initialization
+////////////////////////////////////////////////////////////////////////////////
 
 // Contains the count of bets
 var TeamBetCount = {
@@ -130,123 +245,21 @@ let topBetInfo = document.getElementById("bet-info");
 m.mount(topBetInfo, AllBetInfo)
 
 
-let redre = /!red (\d+)/;
-let bluere = /!blue (\d+)/;
-let atre = /@(\S+)/;
-
-// descending
-function sorterFunc(a, b) {
-  return b - a
-}
+////////////////////////////////////////////////////////////////////////////////
+// Testing utilities
+////////////////////////////////////////////////////////////////////////////////
 
 
-function onIRCMessage(channel, tags, message, self) {
-  if (self) return; // shouldn't happen, we won't be sending
-
-  // The tags include a lowercased username but the message might contain an
-  // @Username that has mixed case. Force lowercasing to avoid problems.
-  let username = tags["username"].toLowerCase();
-  message = message.toLowerCase();
-
-  // Help messages from moobot sometimes include !blue or !red commands as
-  // examples
-  if (username === "moobot") return;
-
-  if (username === "xxsaltbotxx") {
-    // Eventually this branch can be used for confirming bets
-
-    if (message.includes("accepted")) {
-      let atmatch = atre.exec(message);
-      if (atmatch === null) {
-        return;
-      }
-
-      // When we get the first bet of a betting round, alert the user, reset the
-      // bet data, and start a delayed function that will mark the betting round
-      // as over.
-      if (!bettingactive) {
-        bettingactive = true;
-
-        try {
-          alertaudio.play();
-        } catch (e) {
-          console.log("Failed to play alert: ", e);
-        }
-
-        setTimeout(() => {
-          console.log("betting is over, flipping flag");
-          bettingactive = false;
-
-          // Reset the data holders but don't call update. Will be updated when
-          // an actual bet message is received.
-          attemptedbets = {};
-          acceptedbets = {};
-        }, 1000 * 60 * 4);
-      }
-
-      let acceptedUsername = atmatch[1];
-
-      if (!(acceptedUsername in attemptedbets)) {
-        console.log(`Expected username '${acceptedUsername}' to be in attempted bets, but it wasn't`);
-        return
-      }
-
-      if (!(acceptedUsername in acceptedbets)) {
-        acceptedbets[acceptedUsername] = [];
-      }
-
-      acceptedbets[acceptedUsername].push(attemptedbets[acceptedUsername])
-      delete attemptedbets[acceptedUsername]
-
-      m.redraw();
-      return;
-    }
-
-    return;
-  }
-
-  // console.log(tags)
-  // console.log(message)
-
-  let redmatch = redre.exec(message);
-  let bluematch = bluere.exec(message);
-
-  if (redmatch !== null) {
-    attemptedbets[username] = {
-      "team": "red",
-      "amount": parseInt(redmatch[1]),
-    };
-    m.redraw();
-    return;
-  } else if (bluematch !== null) {
-    attemptedbets[username] = {
-      "team": "blue",
-      "amount": parseInt(bluematch[1]),
-    };
-    m.redraw();
-    return;
-  }
-}
-
-// TODO: remove or comment, this is for local testing without requiring
-// actual twitch messages to be sent
+// This is for local testing without requiring actual twitch messages to be sent
 //
 // Use with browser console `document.test("!blue 100")`
 //
-// Attaching to document makes this accessible. I'm sure there is a better way.
+// Attaching to document makes this accessible from the console. I'm sure there
+// is a better way.
 document.test = (message) => {
-  onIRCMessage(null, {"username": "tester"}, message, false);
-  onIRCMessage(null, {"username": "xxsaltbotxx"}, "@tester - ... accepted ...", false);
+  onIRCMessage(null, { "username": "tester" }, message, false);
+  onIRCMessage(null, { "username": "xxsaltbotxx" }, "@tester - ... accepted ...", false);
 }
-
-tmiclient.on('message', onIRCMessage);
-
-document.getElementById("reset-bets-button").addEventListener('click', function() {
-  attemptedbets = {};
-  acceptedbetusernames = {};
-  m.redraw();
-});
-
 
 // Test data from real chat log 2022-01-14
 //
