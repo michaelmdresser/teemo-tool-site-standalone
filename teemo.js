@@ -345,7 +345,7 @@ const testmessages = [
 
 document.sendSampleInput = () => {
   const parsed = testmessages.map(raw => {
-    let sp = raw.split(":");
+    let sp = raw.split(": ");
     return {
       "username": sp[0],
       "message": sp[1]
