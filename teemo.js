@@ -240,7 +240,7 @@ tmiclient.on('message', onIRCMessage);
 
 document.getElementById("reset-bets-button").addEventListener('click', function() {
   attemptedbets = {};
-  acceptedbetusernames = {};
+  acceptedbets = {};
   m.redraw();
 });
 
