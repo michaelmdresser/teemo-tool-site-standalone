@@ -124,6 +124,17 @@ m.mount(topBetInfo, AllBetInfo)
 ////////////////////////////////////////////////////////////////////////////////
 
 let alertaudio = new Audio('elegantdoor.mp3');
+
+function playAlertSound() {
+  try {
+    let volumeLevelInt = document.getElementById("volume").valueAsNumber
+    alertaudio.volume = volumeLevelInt / 100.0
+    alertaudio.play()
+  } catch (e) {
+    console.log("Failed to play alert: ", e)
+  }
+}
+
 var tmiclient;
 
 tmiclient = new tmi.Client({
@@ -170,12 +181,7 @@ function onIRCMessage(channel, tags, message, self) {
       // as over.
       if (!bettingactive) {
         bettingactive = true;
-
-        try {
-          alertaudio.play();
-        } catch (e) {
-          console.log("Failed to play alert: ", e);
-        }
+        playAlertSound();
 
         setTimeout(() => {
           console.log("betting is over, flipping flag");
@@ -244,6 +250,9 @@ document.getElementById("reset-bets-button").addEventListener('click', function(
   m.redraw();
 });
 
+document.getElementById("volume-test").addEventListener('click', function() {
+  playAlertSound();
+});
 
 
 ////////////////////////////////////////////////////////////////////////////////

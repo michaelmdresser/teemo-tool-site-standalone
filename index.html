@@ -13,12 +13,27 @@
   <body>
 
     <h1 id="title">Teemo Tool</h1>
-    <h5 id="about"><a href="https://github.com/michaelmdresser/teemo-tool-site-standalone/blob/master/README.md">About</a></h5>
-    <div id="reset-bets">
-    	<button id="reset-bets-button">Reset bets</button>
+
+    <div id="menu-column">
+        <h5><a href="https://github.com/michaelmdresser/teemo-tool-site-standalone/blob/master/README.md">
+            About
+        </a></h5>
+
+        <div>
+            <input type="range" id="volume" name="volume"
+                   min="0" max="100" step="1" value="20">
+            <label for="volume">Volume</label>
+        </div>
+        <div>
+            <button id="volume-test">Test volume</button>
+        </div>
+
+        <div id="reset-bets">
+            <button id="reset-bets-button">Reset bets</button>
+        </div>
     </div>
-    <div id="bet-info">
-    </div>
+
+    <div id="bet-info"></div>
 
     <script src="teemo.js" type="module"></script>
   </body>
