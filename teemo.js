@@ -4,9 +4,6 @@ import { CountUp } from './js/countUp.min.js';
 // Global Data
 ////////////////////////////////////////////////////////////////////////////////
 
-let alertaudio = new Audio('elegantdoor.mp3');
-var tmiclient;
-
 let bettingactive = false;
 // Username -> {"team": "blue", amount: 1000}
 var attemptedbets = {};
@@ -125,6 +122,9 @@ m.mount(topBetInfo, AllBetInfo)
 ////////////////////////////////////////////////////////////////////////////////
 // Twitch chat message handling
 ////////////////////////////////////////////////////////////////////////////////
+
+let alertaudio = new Audio('elegantdoor.mp3');
+var tmiclient;
 
 tmiclient = new tmi.Client({
   options: { debug: true, messageLogLevel: "info" },
