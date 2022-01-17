@@ -39,28 +39,49 @@ var TeamBetCount = {
   }
 }
 
+
 // Contains the list of bets
-var TeamBetsContainer = {
-  view: function(vnode) {
-    let team = vnode.attrs.team;
-    let bets = vnode.attrs.bets;
+function TeamBetsContainer() {
+  var prevSum = 0;
+  var betSum = 0;
+  const sumreducer = (prev, current) => prev + current;
 
-    const sumreducer = (prev, current) => prev + current;
-    let betSum = bets.length === 0 ? 0 : bets.reduce(sumreducer)
+  return {
+    view: function(vnode) {
+      let team = vnode.attrs.team;
+      let bets = vnode.attrs.bets;
 
-    return m("div",
-      { id: `${team}-individual-container`, class: 'individual-container' },
-      [
-        m("div",
-          { id: `${team}-breakdown-counter`, class: 'breakdown-counter' },
-          // TODO: this should be a CountUp
-          betSum
-        ),
-        m("div",
-          { id: `${team}-individual-bets`, class: 'individual-bets' },
-          bets.map(amount => m("div", amount))
-        )
-      ])
+      return m("div",
+        { id: `${team}-individual-container`, class: 'individual-container' },
+        [
+          m("div",
+            { id: `${team}-breakdown-counter`, class: 'breakdown-counter' },
+            // TODO: this should be a CountUp
+            betSum
+          ),
+          m("div",
+            { id: `${team}-individual-bets`, class: 'individual-bets' },
+            bets.map(amount => m("div", amount))
+          )
+        ])
+    },
+    // Before we update the component, store the old bet info so that the
+    // CountUp can be initialized correctly in onupdate.
+    onbeforeupdate: function(vnode, old) {
+      let oldbets = old.attrs.bets
+      let newbets = vnode.attrs.bets
+      prevSum = oldbets.length === 0 ? 0 : oldbets.reduce(sumreducer)
+      betSum = newbets.length === 0 ? 0 : newbets.reduce(sumreducer)
+    },
+    onupdate: function(vnode) {
+      let team = vnode.attrs.team;
+      let cu = new CountUp(
+        `${team}-breakdown-counter`,
+        betSum,
+        { startVal: prevSum },
+      )
+      cu.start();
+    }
   }
 }
 
@@ -162,8 +183,6 @@ function onIRCMessage(channel, tags, message, self) {
       let acceptedUsername = atmatch[1];
 
       acceptedbetusernames[acceptedUsername] = true;
-      // updateBetInfo("blue");
-      // updateBetInfo("red");
       m.redraw();
       return;
     }
@@ -183,7 +202,6 @@ function onIRCMessage(channel, tags, message, self) {
       "amount": parseInt(redmatch[1]),
     };
     m.redraw();
-    // updateBetInfo("red");
     return;
   } else if (bluematch !== null) {
     attemptedbets[username] = {
@@ -191,7 +209,6 @@ function onIRCMessage(channel, tags, message, self) {
       "amount": parseInt(bluematch[1]),
     };
     m.redraw();
-    // updateBetInfo("blue");
     return;
   }
 }
@@ -221,171 +238,11 @@ function makeIndividualBetsDiv(bets) {
   return div
 }
 
-function updateBetInfo(team) {
-  return;
-  if (team !== "blue" && team !== "red") {
-    console.log("Unknown team:", team);
-    return;
-  }
-
-  let bets = [];
-  for (const [username, betinfo] of Object.entries(attemptedbets)) {
-    if (betinfo["team"] !== team) {
-      continue;
-    }
-
-    if (acceptedbetusernames[username] !== true) {
-      continue;
-    }
-
-    bets.push(betinfo["amount"]);
-  }
-
-  var divName = team + "-bet-total";
-  var totalDiv = document.getElementById(divName);
-  var individualDivName = team + "-individual-bets";
-  var individualDiv = document.getElementById(individualDivName);
-  var breakdownCounterName = team + "-breakdown-counter";
-  var breakdownCounter = document.getElementById(breakdownCounterName);
-
-  individualDiv.innerHTML = '';
-  individualDiv.appendChild(makeIndividualBetsDiv(bets));
-
-  const sumreducer = (prev, current) => prev + current;
-  let betSum = bets.length === 0 ? 0 : bets.reduce(sumreducer)
-
-
-  // if-else checks whether central counter is in total display mode, or no. of bets per side display mode
-  if (totalDisplayMode) {
-    let total = betSum;
-    var current;
-
-    // team total div counter
-    if (totalDiv.innerHTML == '') {
-      current = 0;
-    }
-    else {
-      // replace due to countUp conversion of int to string with commas
-      current = parseInt(totalDiv.innerHTML.replace(/,/g, ''));
-    }
-
-    totalDiv.dataset.total = total.toString();
-
-    const options = {
-      startVal: current,
-    };
-
-    let totalCounter = new CountUp(divName, total, options);
-    totalCounter.start();
-  }
-  else {
-    let total = individualDiv.children[0].children.length;
-
-    var current;
-
-    // team total div counter
-    current = parseInt(totalDiv.innerHTML.replace(/,/g, ''));
-
-    totalDiv.dataset.total = total.toString();
-
-    const options = {
-      startVal: current,
-    };
-
-    let totalCounter = new CountUp(divName, total, options);
-    totalCounter.start();
-
-
-  }
-  // individual div parent counter
-
-  var breakdownCurrent = parseInt(breakdownCounter.innerHTML.replace(/,/g, ''));
-
-  const individualOptions = {
-    startVal: breakdownCurrent,
-  };
-
-  let individualDivCounter = new CountUp(breakdownCounterName, betSum, individualOptions);
-  individualDivCounter.start();
-
-}
-
-// document.getElementById("show-breakdown-button").addEventListener('click', function() {
-//   var redIndividualBets = document.getElementById("red-individual-bets");
-//   var blueIndividualBets = document.getElementById("blue-individual-bets");
-//   var redBetsTotal = document.getElementById("red-bet-total");
-//   var blueBetsTotal = document.getElementById("blue-bet-total");
-//   var redBreakdownCounter = document.getElementById("red-breakdown-counter");
-//   var blueBreakdownCounter = document.getElementById("blue-breakdown-counter");
-
-//   // determines if breakdowns are visible or not
-//   if (totalDisplayMode === true) {
-//     totalDisplayMode = false;
-
-//     var redTotal = redBetsTotal.dataset.total;
-//     var blueTotal = blueBetsTotal.dataset.total;
-
-//     redBreakdownCounter.style.display = "block";
-//     blueBreakdownCounter.style.display = "block";
-
-
-//     const redOptions = {
-//       startVal: redTotal,
-//     };
-
-//     const blueOptions = {
-//       startVal: blueTotal,
-//     };
-
-//     var noRedBets = redIndividualBets.children.length === 0 ? 0 : redIndividualBets.children[0].children.length;
-//     var noBlueBets = blueIndividualBets.children.length === 0 ? 0 : blueIndividualBets.children[0].children.length;
-
-//     let redCounter = new CountUp(redBetsTotal, noRedBets, redOptions);
-//     let blueCounter = new CountUp(blueBetsTotal, noBlueBets, blueOptions);
-//     let redBreakdown = new CountUp(redBreakdownCounter, redTotal);
-//     let blueBreakdown = new CountUp(blueBreakdownCounter, blueTotal);
-
-
-//     redCounter.start();
-//     blueCounter.start();
-//     redBreakdown.start();
-//     blueBreakdown.start();
-
-
-
-//     redIndividualBets.style.display = "inline-block";
-//     blueIndividualBets.style.display = "inline-block";
-
-
-//     document.getElementById("red-bet-label").textContent = "Bets for Red";
-//     document.getElementById("blue-bet-label").textContent = "Bets for Blue";
-//     this.textContent = "Hide Bet Breakdown";
-//   }
-//   else {
-//     totalDisplayMode = true;
-
-//     updateBetInfo("red");
-//     updateBetInfo("blue");
-
-//     redBreakdownCounter.style.display = "none";
-//     blueBreakdownCounter.style.display = "none";
-
-//     redIndividualBets.style.display = "none";
-//     blueIndividualBets.style.display = "none";
-
-//     document.getElementById("red-bet-label").textContent = "Mushrooms";
-//     document.getElementById("blue-bet-label").textContent = "Mushrooms";
-//     this.textContent = "Show Bet Breakdown";
-//   }
-// });
-
 
 document.getElementById("reset-bets-button").addEventListener('click', function() {
   attemptedbets = {};
   acceptedbetusernames = {};
   m.redraw();
-  // updateBetInfo("red");
-  // updateBetInfo("blue");
 });
 
 
