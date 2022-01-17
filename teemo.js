@@ -7,8 +7,8 @@ var tmiclient;
 let bettingactive = false;
 // Username -> {"team": "blue", amount: 1000}
 var attemptedbets = {};
-// Username -> true if bet accepted
-var acceptedbetusernames = {};
+// Username -> [{"team": "blue", amount: 1000}]
+var acceptedbets = {};
 
 tmiclient = new tmi.Client({
   options: { debug: true, messageLogLevel: "info" },
@@ -91,16 +91,14 @@ var TeamBetInfo = {
     let bets = [];
 
     // Construct bets for request team
-    for (const [username, betinfo] of Object.entries(attemptedbets)) {
-      if (betinfo["team"] !== team) {
-        continue;
-      }
+    for (const [username, betsinfo] of Object.entries(acceptedbets)) {
+      betsinfo.forEach((betinfo, i) => {
+        if (betinfo["team"] !== team) {
+          return;
+        }
 
-      if (acceptedbetusernames[username] !== true) {
-        continue;
-      }
-
-      bets.push(betinfo["amount"]);
+        bets.push(betinfo["amount"]);
+      })
     }
 
 
@@ -176,13 +174,24 @@ function onIRCMessage(channel, tags, message, self) {
           // Reset the data holders but don't call update. Will be updated when
           // an actual bet message is received.
           attemptedbets = {};
-          acceptedbetusernames = {};
+          acceptedbets = {};
         }, 1000 * 60 * 4);
       }
 
       let acceptedUsername = atmatch[1];
 
-      acceptedbetusernames[acceptedUsername] = true;
+      if (!(acceptedUsername in attemptedbets)) {
+        console.log(`Expected username '${acceptedUsername}' to be in attempted bets, but it wasn't`);
+        return
+      }
+
+      if (!(acceptedUsername in acceptedbets)) {
+        acceptedbets[acceptedUsername] = [];
+      }
+
+      acceptedbets[acceptedUsername].push(attemptedbets[acceptedUsername])
+      delete attemptedbets[acceptedUsername]
+
       m.redraw();
       return;
     }
@@ -253,11 +262,15 @@ document.getElementById("reset-bets-button").addEventListener('click', function(
 // Red: 22148
 //
 // If processed correctly:
-// Blue: 38977
+// Blue: 38987
 // Red: 7148
 const testmessages = [
   "erbtastic: !blue 200",
   "xxsaltbotxx: @erbtastic - Bet accepted for 200.",
+  "erbtastic: !blue 10",
+  "xxsaltbotxx: @erbtastic - Bet accepted for 10.",
+  "erbtastic: !red 5",
+  "xxsaltbotxx: @erbtastic - ??? 5",
   "krispkratos: !blue 8000",
   "xxsaltbotxx: @krispkratos - Bet accepted for 8,000.",
   "Bongat_: !red 5000",
