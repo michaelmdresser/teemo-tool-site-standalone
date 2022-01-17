@@ -1,11 +1,14 @@
 import { CountUp } from './js/countUp.min.js';
 
 var totalDisplayMode = true;
-
 let alertaudio = new Audio('elegantdoor.mp3');
-let bettingactive = false;
-
 var tmiclient;
+
+let bettingactive = false;
+// Username -> {"team": "blue", amount: 1000}
+var attemptedbets = {};
+// Username -> true if bet accepted
+var acceptedbetusernames = {};
 
 tmiclient = new tmi.Client({
   options: { debug: true, messageLogLevel: "info" },
@@ -21,6 +24,87 @@ tmiclient.connect().catch((e) => {
   console.log("Failed to connect:", e);
 })
 
+// Contains the count of bets
+var TeamBetCount = {
+  view: function(vnode) {
+    let team = vnode.attrs.team;
+    let bets = vnode.attrs.bets;
+
+    return m("span",
+      { id: `${team}-total-container`, class: 'bet-container' },
+      [
+        m("span", { class: 'bet-total' }, bets.length),
+        m("span", { id: `${team}-bet-label`, class: 'label' }, `Bets for ${team}`),
+      ])
+  }
+}
+
+// Contains the list of bets
+var TeamBetsContainer = {
+  view: function(vnode) {
+    let team = vnode.attrs.team;
+    let bets = vnode.attrs.bets;
+
+    const sumreducer = (prev, current) => prev + current;
+    let betSum = bets.length === 0 ? 0 : bets.reduce(sumreducer)
+
+    return m("div",
+      { id: `${team}-individual-container`, class: 'individual-container' },
+      [
+        m("div",
+          { id: `${team}-breakdown-counter`, class: 'breakdown-counter' },
+          // TODO: this should be a CountUp
+          betSum
+        ),
+        m("div",
+          { id: `${team}-individual-bets`, class: 'individual-bets' },
+          bets.map(amount => m("div", amount))
+        )
+      ])
+  }
+}
+
+var TeamBetInfo = {
+  view: function(vnode) {
+    let team = vnode.attrs.team;
+    let bets = [];
+
+    // Construct bets for request team
+    for (const [username, betinfo] of Object.entries(attemptedbets)) {
+      if (betinfo["team"] !== team) {
+        continue;
+      }
+
+      if (acceptedbetusernames[username] !== true) {
+        continue;
+      }
+
+      bets.push(betinfo["amount"]);
+    }
+
+
+    return m("span", { id: `${team}-bet-info` }, [
+      m(TeamBetCount, { team: team, bets: bets }),
+      m(TeamBetsContainer, { team: team, bets: bets }),
+    ]
+    )
+  }
+}
+
+var AllBetInfo = {
+  view: function(vnode) {
+    return m("div", [
+      m(TeamBetInfo, { team: 'blue' }),
+      m("span", { id: "versus" }, 'VS'),
+      m(TeamBetInfo, { team: 'red' }),
+    ])
+  }
+}
+
+let topBetInfo = document.getElementById("bet-info");
+m.mount(topBetInfo, AllBetInfo)
+
+
 let redre = /!red (\d+)/;
 let bluere = /!blue (\d+)/;
 let atre = /@(\S+)/;
@@ -30,10 +114,6 @@ function sorterFunc(a, b) {
   return b - a
 }
 
-// Username -> {"team": "blue", amount: 1000}
-var attemptedbets = {};
-// Username -> true if bet accepted
-var acceptedbetusernames = {};
 
 function onIRCMessage(channel, tags, message, self) {
   if (self) return; // shouldn't happen, we won't be sending
@@ -82,8 +162,9 @@ function onIRCMessage(channel, tags, message, self) {
       let acceptedUsername = atmatch[1];
 
       acceptedbetusernames[acceptedUsername] = true;
-      updateBetInfo("blue");
-      updateBetInfo("red");
+      // updateBetInfo("blue");
+      // updateBetInfo("red");
+      m.redraw();
       return;
     }
 
@@ -101,14 +182,16 @@ function onIRCMessage(channel, tags, message, self) {
       "team": "red",
       "amount": parseInt(redmatch[1]),
     };
-    updateBetInfo("red");
+    m.redraw();
+    // updateBetInfo("red");
     return;
   } else if (bluematch !== null) {
     attemptedbets[username] = {
       "team": "blue",
       "amount": parseInt(bluematch[1]),
     };
-    updateBetInfo("blue");
+    m.redraw();
+    // updateBetInfo("blue");
     return;
   }
 }
@@ -139,6 +222,7 @@ function makeIndividualBetsDiv(bets) {
 }
 
 function updateBetInfo(team) {
+  return;
   if (team !== "blue" && team !== "red") {
     console.log("Unknown team:", team);
     return;
@@ -226,81 +310,82 @@ function updateBetInfo(team) {
 
 }
 
-document.getElementById("show-breakdown-button").addEventListener('click', function() {
-  var redIndividualBets = document.getElementById("red-individual-bets");
-  var blueIndividualBets = document.getElementById("blue-individual-bets");
-  var redBetsTotal = document.getElementById("red-bet-total");
-  var blueBetsTotal = document.getElementById("blue-bet-total");
-  var redBreakdownCounter = document.getElementById("red-breakdown-counter");
-  var blueBreakdownCounter = document.getElementById("blue-breakdown-counter");
+// document.getElementById("show-breakdown-button").addEventListener('click', function() {
+//   var redIndividualBets = document.getElementById("red-individual-bets");
+//   var blueIndividualBets = document.getElementById("blue-individual-bets");
+//   var redBetsTotal = document.getElementById("red-bet-total");
+//   var blueBetsTotal = document.getElementById("blue-bet-total");
+//   var redBreakdownCounter = document.getElementById("red-breakdown-counter");
+//   var blueBreakdownCounter = document.getElementById("blue-breakdown-counter");
 
-  // determines if breakdowns are visible or not
-  if (totalDisplayMode === true) {
-    totalDisplayMode = false;
+//   // determines if breakdowns are visible or not
+//   if (totalDisplayMode === true) {
+//     totalDisplayMode = false;
 
-    var redTotal = redBetsTotal.dataset.total;
-    var blueTotal = blueBetsTotal.dataset.total;
+//     var redTotal = redBetsTotal.dataset.total;
+//     var blueTotal = blueBetsTotal.dataset.total;
 
-    redBreakdownCounter.style.display = "block";
-    blueBreakdownCounter.style.display = "block";
-
-
-    const redOptions = {
-      startVal: redTotal,
-    };
-
-    const blueOptions = {
-      startVal: blueTotal,
-    };
-
-    var noRedBets = redIndividualBets.children.length === 0 ? 0 : redIndividualBets.children[0].children.length;
-    var noBlueBets = blueIndividualBets.children.length === 0 ? 0 : blueIndividualBets.children[0].children.length;
-
-    let redCounter = new CountUp(redBetsTotal, noRedBets, redOptions);
-    let blueCounter = new CountUp(blueBetsTotal, noBlueBets, blueOptions);
-    let redBreakdown = new CountUp(redBreakdownCounter, redTotal);
-    let blueBreakdown = new CountUp(blueBreakdownCounter, blueTotal);
+//     redBreakdownCounter.style.display = "block";
+//     blueBreakdownCounter.style.display = "block";
 
 
-    redCounter.start();
-    blueCounter.start();
-    redBreakdown.start();
-    blueBreakdown.start();
+//     const redOptions = {
+//       startVal: redTotal,
+//     };
+
+//     const blueOptions = {
+//       startVal: blueTotal,
+//     };
+
+//     var noRedBets = redIndividualBets.children.length === 0 ? 0 : redIndividualBets.children[0].children.length;
+//     var noBlueBets = blueIndividualBets.children.length === 0 ? 0 : blueIndividualBets.children[0].children.length;
+
+//     let redCounter = new CountUp(redBetsTotal, noRedBets, redOptions);
+//     let blueCounter = new CountUp(blueBetsTotal, noBlueBets, blueOptions);
+//     let redBreakdown = new CountUp(redBreakdownCounter, redTotal);
+//     let blueBreakdown = new CountUp(blueBreakdownCounter, blueTotal);
+
+
+//     redCounter.start();
+//     blueCounter.start();
+//     redBreakdown.start();
+//     blueBreakdown.start();
 
 
 
-    redIndividualBets.style.display = "inline-block";
-    blueIndividualBets.style.display = "inline-block";
+//     redIndividualBets.style.display = "inline-block";
+//     blueIndividualBets.style.display = "inline-block";
 
 
-    document.getElementById("red-bet-label").textContent = "Bets for Red";
-    document.getElementById("blue-bet-label").textContent = "Bets for Blue";
-    this.textContent = "Hide Bet Breakdown";
-  }
-  else {
-    totalDisplayMode = true;
+//     document.getElementById("red-bet-label").textContent = "Bets for Red";
+//     document.getElementById("blue-bet-label").textContent = "Bets for Blue";
+//     this.textContent = "Hide Bet Breakdown";
+//   }
+//   else {
+//     totalDisplayMode = true;
 
-    updateBetInfo("red");
-    updateBetInfo("blue");
+//     updateBetInfo("red");
+//     updateBetInfo("blue");
 
-    redBreakdownCounter.style.display = "none";
-    blueBreakdownCounter.style.display = "none";
+//     redBreakdownCounter.style.display = "none";
+//     blueBreakdownCounter.style.display = "none";
 
-    redIndividualBets.style.display = "none";
-    blueIndividualBets.style.display = "none";
+//     redIndividualBets.style.display = "none";
+//     blueIndividualBets.style.display = "none";
 
-    document.getElementById("red-bet-label").textContent = "Mushrooms";
-    document.getElementById("blue-bet-label").textContent = "Mushrooms";
-    this.textContent = "Show Bet Breakdown";
-  }
-});
+//     document.getElementById("red-bet-label").textContent = "Mushrooms";
+//     document.getElementById("blue-bet-label").textContent = "Mushrooms";
+//     this.textContent = "Show Bet Breakdown";
+//   }
+// });
 
 
 document.getElementById("reset-bets-button").addEventListener('click', function() {
   attemptedbets = {};
   acceptedbetusernames = {};
-  updateBetInfo("red");
-  updateBetInfo("blue");
+  m.redraw();
+  // updateBetInfo("red");
+  // updateBetInfo("blue");
 });
 
 
