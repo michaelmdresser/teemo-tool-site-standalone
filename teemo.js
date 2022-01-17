@@ -14,6 +14,115 @@ var attemptedbets = {};
 var acceptedbets = {};
 
 ////////////////////////////////////////////////////////////////////////////////
+// Display/rendering components and initialization
+////////////////////////////////////////////////////////////////////////////////
+
+// Contains the count of bets
+var TeamBetCount = {
+  view: function(vnode) {
+    let team = vnode.attrs.team;
+    let bets = vnode.attrs.bets;
+
+    let totalHS = m("span", { class: 'bet-total' }, bets.length)
+    let textHS = m("span", { id: `${team}-bet-label`, class: 'label' }, `Bets for ${team}`)
+
+    let childArr = [];
+    if (team === "red") {
+      childArr = [totalHS, textHS]
+    } else {
+      childArr = [textHS, totalHS]
+    }
+
+    return m("span",
+      { id: `${team}-total-container`, class: 'bet-container' },
+      childArr)
+  }
+}
+
+
+// Contains the list of bets
+function TeamBetsContainer() {
+  var prevSum = 0;
+  var betSum = 0;
+  const sumreducer = (prev, current) => prev + current;
+
+  return {
+    view: function(vnode) {
+      let team = vnode.attrs.team;
+      let bets = vnode.attrs.bets.sort((a, b) => b - a);
+
+      return m("div",
+        { id: `${team}-individual-container`, class: 'individual-container' },
+        [
+          m("div",
+            { id: `${team}-breakdown-counter`, class: 'breakdown-counter' },
+            // TODO: this should be a CountUp
+            betSum
+          ),
+          m("div",
+            { id: `${team}-individual-bets`, class: 'individual-bets' },
+            bets.map(amount => m("div", amount))
+          )
+        ])
+    },
+    // Before we update the component, store the old bet info so that the
+    // CountUp can be initialized correctly in onupdate.
+    onbeforeupdate: function(vnode, old) {
+      let oldbets = old.attrs.bets
+      let newbets = vnode.attrs.bets
+      prevSum = oldbets.length === 0 ? 0 : oldbets.reduce(sumreducer)
+      betSum = newbets.length === 0 ? 0 : newbets.reduce(sumreducer)
+    },
+    onupdate: function(vnode) {
+      let team = vnode.attrs.team;
+      let cu = new CountUp(
+        `${team}-breakdown-counter`,
+        betSum,
+        { startVal: prevSum },
+      )
+      cu.start();
+    }
+  }
+}
+
+var TeamBetInfo = {
+  view: function(vnode) {
+    let team = vnode.attrs.team;
+    let bets = [];
+
+    // Construct bets for request team
+    for (const [username, betsinfo] of Object.entries(acceptedbets)) {
+      betsinfo.forEach((betinfo, i) => {
+        if (betinfo["team"] !== team) {
+          return;
+        }
+
+        bets.push(betinfo["amount"]);
+      })
+    }
+
+
+    return m("span", { id: `${team}-bet-info` }, [
+      m(TeamBetCount, { team: team, bets: bets }),
+      m(TeamBetsContainer, { team: team, bets: bets }),
+    ]
+    )
+  }
+}
+
+var AllBetInfo = {
+  view: function(vnode) {
+    return m("div", [
+      m(TeamBetInfo, { team: 'blue' }),
+      m(TeamBetInfo, { team: 'red' }),
+    ])
+  }
+}
+
+let topBetInfo = document.getElementById("bet-info");
+m.mount(topBetInfo, AllBetInfo)
+
+////////////////////////////////////////////////////////////////////////////////
 // Twitch chat message handling
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -135,114 +244,6 @@ document.getElementById("reset-bets-button").addEventListener('click', function(
   m.redraw();
 });
 
-////////////////////////////////////////////////////////////////////////////////
-// Display/rendering components and initialization
-////////////////////////////////////////////////////////////////////////////////
-
-// Contains the count of bets
-var TeamBetCount = {
-  view: function(vnode) {
-    let team = vnode.attrs.team;
-    let bets = vnode.attrs.bets;
-
-    let totalHS = m("span", { class: 'bet-total' }, bets.length)
-    let textHS = m("span", { id: `${team}-bet-label`, class: 'label' }, `Bets for ${team}`)
-
-    let childArr = [];
-    if (team === "red") {
-      childArr = [totalHS, textHS]
-    } else {
-      childArr = [textHS, totalHS]
-    }
-
-    return m("span",
-      { id: `${team}-total-container`, class: 'bet-container' },
-      childArr)
-  }
-}
-
-
-// Contains the list of bets
-function TeamBetsContainer() {
-  var prevSum = 0;
-  var betSum = 0;
-  const sumreducer = (prev, current) => prev + current;
-
-  return {
-    view: function(vnode) {
-      let team = vnode.attrs.team;
-      let bets = vnode.attrs.bets.sort((a, b) => b - a);
-
-      return m("div",
-        { id: `${team}-individual-container`, class: 'individual-container' },
-        [
-          m("div",
-            { id: `${team}-breakdown-counter`, class: 'breakdown-counter' },
-            // TODO: this should be a CountUp
-            betSum
-          ),
-          m("div",
-            { id: `${team}-individual-bets`, class: 'individual-bets' },
-            bets.map(amount => m("div", amount))
-          )
-        ])
-    },
-    // Before we update the component, store the old bet info so that the
-    // CountUp can be initialized correctly in onupdate.
-    onbeforeupdate: function(vnode, old) {
-      let oldbets = old.attrs.bets
-      let newbets = vnode.attrs.bets
-      prevSum = oldbets.length === 0 ? 0 : oldbets.reduce(sumreducer)
-      betSum = newbets.length === 0 ? 0 : newbets.reduce(sumreducer)
-    },
-    onupdate: function(vnode) {
-      let team = vnode.attrs.team;
-      let cu = new CountUp(
-        `${team}-breakdown-counter`,
-        betSum,
-        { startVal: prevSum },
-      )
-      cu.start();
-    }
-  }
-}
-
-var TeamBetInfo = {
-  view: function(vnode) {
-    let team = vnode.attrs.team;
-    let bets = [];
-
-    // Construct bets for request team
-    for (const [username, betsinfo] of Object.entries(acceptedbets)) {
-      betsinfo.forEach((betinfo, i) => {
-        if (betinfo["team"] !== team) {
-          return;
-        }
-
-        bets.push(betinfo["amount"]);
-      })
-    }
-
-
-    return m("span", { id: `${team}-bet-info` }, [
-      m(TeamBetCount, { team: team, bets: bets }),
-      m(TeamBetsContainer, { team: team, bets: bets }),
-    ]
-    )
-  }
-}
-
-var AllBetInfo = {
-  view: function(vnode) {
-    return m("div", [
-      m(TeamBetInfo, { team: 'blue' }),
-      m(TeamBetInfo, { team: 'red' }),
-    ])
-  }
-}
-
-let topBetInfo = document.getElementById("bet-info");
-m.mount(topBetInfo, AllBetInfo)
 
 
 ////////////////////////////////////////////////////////////////////////////////
