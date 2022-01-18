@@ -206,14 +206,15 @@ function onIRCMessage(channel, tags, message, self) {
         bettingactive = true;
         playAlertSound();
 
+        acceptedbets = {};
+
         setTimeout(() => {
           console.log("betting is over, flipping flag");
           bettingactive = false;
 
-          // Reset the data holders but don't call update. Will be updated when
-          // an actual bet message is received.
+          // Clear attempts but not accepted bets. Accepted will get cleared
+          // on flag flip.
           attemptedbets = {};
-          acceptedbets = {};
         }, 1000 * 60 * 4);
       }
 
