@@ -21,10 +21,16 @@ function TeamBetSummary() {
 
   return {
     view: function(vnode) {
-      const sumreducer = (prev, current) => prev + current;
-
       let team = vnode.attrs.team;
       let bets = vnode.attrs.bets;
+      let otherbets = vnode.attrs.otherbets;
+
+      let successmultiplediv;
+      if (bets.length > 0 && otherbets.length > 0) {
+        let successmultiple = otherbets.reduce(sumreducer) / bets.reduce(sumreducer)
+        successmultiplediv = m("div",
+                            `Bet return is ${successmultiple.toFixed(2)}x`)
+      }
 
       let totalHS = m("span", { class: 'bet-count' }, bets.length)
       let textHS = m("span", { class: 'bet-count-label' }, `bets for ${team}`)
@@ -43,7 +49,9 @@ function TeamBetSummary() {
         ),
         m("span",
           childArr,
-        )]
+        ),
+        successmultiplediv,
+      ]
       )
     },
     // Before we update the component, store the old bet info so that the
@@ -120,11 +128,11 @@ var FullPage = {
       m("div", { id: "grid-blue-bet-list", class: "blue" },
         m(TeamBetsContainer, { team: "blue", bets: bluebets })),
       m("div", { id: "grid-blue-bet-summary", class: "blue" },
-        m(TeamBetSummary, { team: "blue", bets: bluebets })),
+        m(TeamBetSummary, { team: "blue", bets: bluebets, otherbets: redbets })),
       m("div", { id: "menu-column" },
         m(Menu)),
       m("div", { id: "grid-red-bet-summary", class: "red" },
-        m(TeamBetSummary, { team: "red", bets: redbets })),
+        m(TeamBetSummary, { team: "red", bets: redbets, otherbets: bluebets })),
       m("div", { id: "grid-red-bet-list", class: "red" },
         m(TeamBetsContainer, { team: "red", bets: redbets })),
     ])
