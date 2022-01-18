@@ -85,13 +85,6 @@ var TeamBetsContainer = {
 var Menu = {
   view: function() {
     return m("div", { id: "menu-column" }, [
-      m("h5",
-        m("a",
-          {
-            href: "https://github.com/michaelmdresser/teemo-tool-site-standalone",
-            target: "_blank",
-          },
-          "About")),
       m("div", [
         m("input", {
           type: "range", id: "volume", name: "volume",
