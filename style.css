@@ -1,114 +1,68 @@
 body {
     font-family: 'Lato', sans-serif;
+    margin: auto;
+    max-width: 50rem;
+    padding: 1.5rem;
+    color: white;
+    background: linear-gradient(90deg, #0074D9 25%, #FF4136 75%);
+    font-size: 1.2em;
 }
 
 #title {
     text-align: center;
-    padding: 10px;
+}
+
+#grid-wrapper {
+    display: grid;
+    grid-template-columns: [bluebets] 1fr [bluesummary] 1fr [menu] 1fr [redsummary] 1fr [redbets] 1fr;
+    gap: 20px;
 }
 
 #menu-column {
+    grid-column: menu;
     text-align: center;
-    padding-bottom: 5px;
 }
 
-.bet-total {
-    background: transparent;
-    border-radius: 18px;
-    position: relative;
-    margin-bottom: 1px;
-    font-size: 2.0em;
-    float:right;
-    color: white;
-    padding: 2px;
-    display: inline-block;
-    /*box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);*/
-}
-
-.individual-container {
-    position: absolute;
+.bet-count {
+    font-size: 0.95em;
+    padding: 0.2em;
 }
 
 .individual-bets {
-    margin-top: 5px;
     font-size: 0.95em;
-    position: relative;
 }
 
-.bet-label {
-    /* border:1px solid black; */
-    padding: 3px;
-    display: inline-block;
+.sum {
+    font-size: 2.2em;
 }
 
-.breakdown-counter {
-    position: relative;
-    font-size: 1.5em;
-}
-
-.total-container {
-    padding: 9px;
-    position: absolute;
-    top: 30%;
-    margin-bottom: 10px;
-    display: table-cell;
-}
-
-.blue .total-container {
-    left: 30%;
-}
-
-.blue .bet-label {
-    float: right;
-}
-
-.blue .individual-container {
-    left: 20%;
-}
-
-.blue .individual-bets {
-    float: left;
+.blue {
     text-align: left;
 }
-
-.red .total-container {
-    right: 30%;
-}
-
-.red .bet-label {
-    float: left
-}
-
-.red .individual-container {
-    right: 20%;
-}
-
-.red .individual-bets {
+.red {
     text-align: right;
 }
 
-body {
-    height: 100%;
-    background: linear-gradient(90deg, #0074D9 25%, #FF4136 75%);
-    color: white;
-    font-size: 1.2em;
+#grid-blue-bet-list {
+    grid-column: bluebets;
+}
+
+#grid-blue-bet-summary {
+    grid-column: bluesummary;
+}
+
+#grid-red-bet-summary {
+    grid-column: redsummary;
+}
+#grid-red-bet-list {
+    grid-column: redbets;
 }
 
 #reset-bets {
-    padding-top: 10px;
+    padding-top: 3.5rem;
 }
 
-button {
-    background: rgba(0, 0, 0, 0.25);
-    border: none;
-    border-radius: 10px;
-    padding: 8px;
-    color: white;
-    box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
-    cursor: pointer;
-}
-
-a {
+button,a {
     background: rgba(0, 0, 0, 0.25);
     border: none;
     border-radius: 10px;

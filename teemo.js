@@ -14,52 +14,37 @@ var acceptedbets = {};
 // Display/rendering components and initialization
 ////////////////////////////////////////////////////////////////////////////////
 
-// Contains the count of bets
-var TeamBetCount = {
-  view: function(vnode) {
-    let team = vnode.attrs.team;
-    let bets = vnode.attrs.bets;
-
-    let totalHS = m("span", { class: 'bet-total' }, bets.length)
-    let textHS = m("span", { class: 'bet-label' }, `Bets for ${team}`)
-
-    let childArr = [];
-    if (team === "red") {
-      childArr = [totalHS, textHS]
-    } else {
-      childArr = [textHS, totalHS]
-    }
-
-    return m("span",
-      { class: 'total-container' },
-      childArr)
-  }
-}
-
-
-// Contains the list of bets
-function TeamBetsContainer() {
+function TeamBetSummary() {
   var prevSum = 0;
   var betSum = 0;
   const sumreducer = (prev, current) => prev + current;
 
   return {
     view: function(vnode) {
-      let team = vnode.attrs.team;
-      let bets = vnode.attrs.bets.sort((a, b) => b - a);
+      const sumreducer = (prev, current) => prev + current;
 
-      return m("div",
-        { class: 'individual-container' },
-        [
-          m("div",
-            { class: 'breakdown-counter' },
-            betSum
-          ),
-          m("div",
-            { class: 'individual-bets' },
-            bets.map(amount => m("div", amount))
-          )
-        ])
+      let team = vnode.attrs.team;
+      let bets = vnode.attrs.bets;
+
+      let totalHS = m("span", { class: 'bet-count' }, bets.length)
+      let textHS = m("span", { class: 'bet-count-label' }, `bets for ${team}`)
+
+      let childArr = [];
+      // if (team === "red") {
+      //   childArr = [totalHS, textHS]
+      // } else {
+      //   childArr = [textHS, totalHS]
+      // }
+      childArr = [totalHS, textHS]
+
+      return m("div", { class: 'summary-container' }, [
+        m("div", { class: 'sum', id: `${team}-breakdown-counter` },
+          betSum,
+        ),
+        m("span",
+          childArr,
+        )]
+      )
     },
     // Before we update the component, store the old bet info so that the
     // CountUp can be initialized correctly in onupdate.
@@ -81,42 +66,80 @@ function TeamBetsContainer() {
   }
 }
 
-var TeamBetInfo = {
+// Contains the list of bets
+var TeamBetsContainer = {
   view: function(vnode) {
     let team = vnode.attrs.team;
-    let bets = [];
+    let bets = vnode.attrs.bets.sort((a, b) => b - a);
 
-    // Construct bets for request team
-    for (const [username, betsinfo] of Object.entries(acceptedbets)) {
-      betsinfo.forEach((betinfo, i) => {
-        if (betinfo["team"] !== team) {
-          return;
-        }
-
-        bets.push(betinfo["amount"]);
-      })
-    }
-
-
-    return m("span", { class: `${team}` }, [
-      m(TeamBetCount, { team: team, bets: bets }),
-      m(TeamBetsContainer, { team: team, bets: bets }),
-    ]
+    return m("div",
+      { class: 'individual-container' },
+      m("div",
+        { class: 'individual-bets' },
+        bets.map(amount => m("div", amount))
+      )
     )
   }
 }
 
-var AllBetInfo = {
-  view: function(vnode) {
-    return m("div", [
-      m(TeamBetInfo, { team: 'blue' }),
-      m(TeamBetInfo, { team: 'red' }),
+var Menu = {
+  view: function() {
+    return m("div", { id: "menu-column" }, [
+      m("h5",
+        m("a",
+          {
+            href: "https://github.com/michaelmdresser/teemo-tool-site-standalone",
+            target: "_blank",
+          },
+          "About")),
+      m("div", [
+        m("input", {
+          type: "range", id: "volume", name: "volume",
+          min: "0", max: "100", step: "1", value: "25",
+        }),
+        m("label", { for: "volume" }, "Volume"),
+      ]),
+      m("div",
+        m("button", { id: "volume-test" }, "Test volume")),
+      m("div", { id: "reset-bets" },
+        m("button", { id: "reset-bets-button" }, "Reset bets")),
     ])
   }
 }
 
-let topBetInfo = document.getElementById("bet-info");
-m.mount(topBetInfo, AllBetInfo)
+var FullPage = {
+  view: function(vnode) {
+    let redbets = [];
+    let bluebets = [];
+
+    // Construct bets for each team
+    for (const [username, betsinfo] of Object.entries(acceptedbets)) {
+      betsinfo.forEach((betinfo, i) => {
+        if (betinfo["team"] === "red") {
+          redbets.push(betinfo["amount"]);
+        } else if (betinfo["team"] === "blue") {
+          bluebets.push(betinfo["amount"]);
+        }
+      })
+    }
+
+    return m("div", { id: "grid-wrapper" }, [
+      m("div", { id: "grid-blue-bet-list", class: "blue" },
+        m(TeamBetsContainer, { team: "blue", bets: bluebets })),
+      m("div", { id: "grid-blue-bet-summary", class: "blue" },
+        m(TeamBetSummary, { team: "blue", bets: bluebets })),
+      m("div", { id: "menu-column" },
+        m(Menu)),
+      m("div", { id: "grid-red-bet-summary", class: "red" },
+        m(TeamBetSummary, { team: "red", bets: redbets })),
+      m("div", { id: "grid-red-bet-list", class: "red" },
+        m(TeamBetsContainer, { team: "red", bets: redbets })),
+    ])
+  }
+}
+
+let top = document.getElementById("mainpage");
+m.mount(top, FullPage)
 
 ////////////////////////////////////////////////////////////////////////////////
 // Twitch chat message handling
