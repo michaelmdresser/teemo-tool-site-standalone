@@ -190,10 +190,8 @@ function onIRCMessage(channel, tags, message, self) {
   // examples
   if (username === "moobot") return;
 
-  if (username === "xxsaltbotxx") {
-    // Eventually this branch can be used for confirming bets
-
-    if (message.includes("accepted")) {
+  if (username === "xxsaltbotxx" || username === "malphite_bot" || tags.mod) {
+    if (message.includes("you placed")) {
       let atmatch = atre.exec(message);
       if (atmatch === null) {
         return;
@@ -292,7 +290,7 @@ document.getElementById("volume-test").addEventListener('click', function() {
 // is a better way.
 document.test = (message) => {
   onIRCMessage(null, { "username": "tester" }, message, false);
-  onIRCMessage(null, { "username": "xxsaltbotxx" }, "@tester - ... accepted ...", false);
+  onIRCMessage(null, { "username": "Malphite_Bot" }, "@tester - ... You placed ... mushrooms on", false);
 }
 
 // Test data from real chat log 2022-01-14
@@ -306,35 +304,35 @@ document.test = (message) => {
 // Red: 7148
 const testmessages = [
   "erbtastic: !blue 200",
-  "xxsaltbotxx: @erbtastic - Bet accepted for 200.",
+  "Malphite_Bot: @erbtastic You placed 200 mushrooms on BLUE.",
   "erbtastic: !blue 10",
-  "xxsaltbotxx: @erbtastic - Bet accepted for 10.",
+  "Malphite_Bot: @erbtastic - You placed 10 mushrooms on BLUE.",
   "erbtastic: !red 5",
-  "xxsaltbotxx: @erbtastic - ??? 5",
+  "Malphite_Bot: @erbtastic - ??? 5",
   "krispkratos: !blue 8000",
-  "xxsaltbotxx: @krispkratos - Bet accepted for 8,000.",
+  "Malphite_Bot: @krispkratos You placed 8,000 mushrooms on BLUE.",
   "Bongat_: !red 5000",
-  "xxsaltbotxx: @Bongat_ - You do not have enough. You're current balance is 3148. If you are new, type !register to get your starting balance.",
+  "Malphite_Bot: @Bongat_ - You do not have enough. You're current balance is 3148. If you are new, type !register to get your starting balance.",
   "Ebelisk: !blue 2000",
-  "xxsaltbotxx: @Ebelisk - Bet accepted for 2,000.",
+  "Malphite_Bot: @Ebelisk You placed 2,000 mushrooms on BLUE.",
   "Bongat_: !balance",
-  "xxsaltbotxx: @Bongat_ - You have 3 148 mashrooms.",
+  "Malphite_Bot: @Bongat_ - You have 3 148 mashrooms.",
   "andrewch783: !blue 7777",
-  "xxsaltbotxx: @andrewch783 - Bet accepted for 7,777.",
+  "Malphite_Bot: @andrewch783 You placed 7,777 mushrooms on BLUE.",
   "Bongat_: !red 3148",
   "VoyboyisMyWife: !blue 1000",
-  "xxsaltbotxx: @Bongat_ - Bet accepted for 3,148.",
-  "xxsaltbotxx: @VoyboyisMyWife - Bet accepted for 1,000.",
+  "Malphite_Bot: @Bongat_ You placed 3,148 mushrooms on RED.",
+  "Malphite_Bot: @VoyboyisMyWife You placed 1,000 mushrooms on BLUE.",
   "SleepyG807: !blue 10000",
-  "xxsaltbotxx: @SleepyG807 - Bet accepted for 10,000.",
+  "Malphite_Bot: @SleepyG807 You placed 10,000 mushrooms on BLUE.",
   "duckycheese: !red 4000",
-  "xxsaltbotxx: @duckycheese - Bet accepted for 4,000.",
+  "Malphite_Bot: @duckycheese You placed 4,000 mushrooms on RED.",
   "calzoking: !blue 10000",
-  "xxsaltbotxx: @calzoking - Bet accepted for 10,000.",
+  "Malphite_Bot: @calzoking You placed 10,0000 mushrooms on BLUE.",
   "SpaceFootballKing: !blue 5000",
-  "xxsaltbotxx: @SpaceFootballKing - It had over for this game. Maybe next time.....yes...",
+  "Malphite_Bot: @SpaceFootballKing - It had over for this game. Maybe next time.....yes...",
   "bongatde: !red 10000",
-  "xxsaltbotxx: @bongatde - It had over for this game. Maybe next time.....yes...",
+  "Malphite_Bot: @bongatde - It had over for this game. Maybe next time.....yes...",
   "Skaigerah: !farm",
 ];
 
